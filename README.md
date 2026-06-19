@@ -1,60 +1,67 @@
 # ❤️ AI 女友 - 小雅
 
-一个可以在浏览器里和你聊天的 AI 女友网站。真实风格照片 + 智能对话。
+一个功能丰富的 AI 女友网站：真实风格照片 + 视频 + 语音对话 + 图片识别。
 
-## 🚀 在线使用
+## ✨ 功能
 
-打开网站后，首次使用需要配置 API Key：
+- 💬 **智能聊天** — 通义千问免费 API 驱动，小雅会撒娇、撩人、关心你
+- 🎤 **语音对话** — 说出你想说的话，小雅也会用甜美声音回复你
+- 📸 **照片画廊** — AI 生成的真人风格美女照片，左右切换浏览
+- 🎬 **视频展示** — 小雅的视频片段（可替换为你的视频）
+- 📎 **图片上传** — 发照片给小雅看，她能识别图片内容并像女友一样评价
+- 📄 **文件上传** — 发送文本文件，小雅帮你读
+- 📱 **响应式设计** — 手机和电脑都能用
 
-1. 访问 [阿里云 DashScope](https://dashscope.console.aliyun.com)（支付宝扫码登录）
-2. 开通 **灵积模型服务**
-3. 获取 API Key（以 `sk-` 开头）
-4. 粘贴到网站的设置弹窗中，保存即可
+## 🚀 快速开始
 
-> 🔒 API Key 只存储在浏览器本地，不会上传到任何服务器
+### 1. 获取免费 API Key
+访问 [阿里云 DashScope](https://dashscope.console.aliyun.com)（支付宝扫码登录）→ 开通灵积模型服务 → 获取 API Key（以 `sk-` 开头）
+
+### 2. 打开网站
+直接浏览器打开 `index.html`，或访问 GitHub Pages：
+**https://ldygml.github.io/ai-girlfriend**
+
+### 3. 配置
+首次打开会弹出设置框，粘贴 API Key 即可开始聊天。
+
+> 🔒 Key 只存储在浏览器本地，不上传任何服务器
 
 ## 💰 费用
+完全免费！通义千问每月赠送 **200 万 token**。
 
-完全免费！通义千问每月赠送 **200 万 token**，足够日常聊天使用。
+## 🎤 语音功能
 
-## 📸 照片
+| 功能 | 说明 |
+|------|------|
+| 🎤 语音输入 | 点击麦克风按钮，说话后自动转文字并发送 |
+| 🔊 语音播报 | 默认开启，小雅的回复会自动朗读（点击🔊切换） |
 
-照片由 AI 生成，存放在 `images/` 目录下。你可以替换为自己的照片：
-- 替换 `images/photo1.jpg` ~ `photo4.jpg`
-- 修改 `index.html` 中 `photos` 数组的 `label` 文字
-- 建议图片尺寸：720×960（竖版写真比例）
+> 语音功能需要 Chrome 或 Edge 浏览器
 
-### 生成更多照片
+## 📎 文件上传
 
-推荐使用以下免费 AI 绘图工具生成真实风格人像：
+- **图片**: 发送照片给小雅看，她会用 qwen-vl-plus 多模态模型识别内容
+- **文本文件**: 支持 .txt .md .json .csv，小雅会读取内容并回应
 
-| 平台 | 地址 | 特点 |
-|------|------|------|
-| SeaArt | seaart.ai | 免费额度，写实模型丰富 |
-| TensorArt | tensor.art | 每日免费额度 |
-| 通义万相 | tongyi.aliyun.com | 阿里出品，国内直连 |
+## 🎬 视频
 
-**推荐提示词**：
-> 真实摄影风格，中国美女，25岁，长发，时尚穿搭，高清写真，半身照，自然光线，背景虚化
+视频文件放在 `videos/` 目录。当前使用 AI 生成的缩略图 + Ken Burns 动画模拟视频效果。
+
+如需添加真实视频：
+1. 将 MP4 文件放入 `videos/` 目录
+2. 在 `index.html` 中修改 `videos` 数组的 `src` 字段
+3. 推荐使用 AI 视频工具生成：可灵 (Kling)、Runway、Pika 等
 
 ## 🛠️ 本地运行
 
-直接在浏览器打开 `index.html` 即可，无需任何服务器。
+直接在浏览器打开 `index.html`，无需服务器。
 
 ## 🌐 部署到 GitHub Pages
 
-1. Fork 或克隆本仓库
-2. 推送到你的 GitHub：
 ```bash
 git add .
-git commit -m "AI girlfriend website"
-git push origin main
+git commit -m "Update"
+git push origin master
 ```
-3. 在仓库 Settings → Pages 中，选择 `main` 分支，点击 Save
-4. 等待几分钟，即可通过 `https://你的用户名.github.io/ai-girlfriend` 访问
 
-## ⚙️ 技术栈
-
-- 纯 HTML + CSS + JavaScript，零依赖
-- AI 对话：通义千问 (Qwen-Plus) 免费 API
-- 托管：GitHub Pages
+在仓库 Settings → Pages 中选择 `master` 分支即可。
