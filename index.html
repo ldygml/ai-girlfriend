@@ -930,47 +930,110 @@
         }
 
         // ==================== TEXT-TO-SPEECH ====================
+        // ==================== TTS — Edge 神经网络萝莉音 ====================
+        // Voice: zh-CN-XiaoyiNeural — 晓依，年轻甜美女声（萝莉音）
+        const EDGE_TTS_URL = 'https://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1?TrustedClientToken=6A5AA1D4EAFF4E9FB37E23D68491D6F4';
+        const TTS_VOICE = 'zh-CN-XiaoyiNeural';
+        let ttsAudio = null;
+
         function toggleTTS() {
             ttsEnabled = !ttsEnabled;
             const btn = document.getElementById('ttsToggle');
             if (ttsEnabled) {
                 btn.textContent = '🔊';
                 btn.classList.add('voice-on');
-                btn.title = '语音播放：开';
+                btn.title = '语音播放：开（萝莉音·晓依）';
                 localStorage.setItem('xiaoya_tts', 'on');
             } else {
                 btn.textContent = '🔇';
                 btn.classList.remove('voice-on');
                 btn.title = '语音播放：关';
                 localStorage.setItem('xiaoya_tts', 'off');
-                window.speechSynthesis.cancel();
+                stopTTS();
             }
         }
 
-        function speakText(text) {
+        function stopTTS() {
+            if (ttsAudio) {
+                ttsAudio.pause();
+                ttsAudio = null;
+            }
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+        }
+
+        async function speakText(text) {
             if (!ttsEnabled) return;
+            if (!text) return;
+
+            // Clean and limit text length
+            const cleanText = text.replace(/[\n\r]+/g, '，').replace(/[~～]+/g, '~').trim();
+            if (!cleanText) return;
+
+            stopTTS();
+
+            try {
+                const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='zh-CN'>
+  <voice name='${TTS_VOICE}'>
+    <prosody rate='+5%' pitch='+15%'>
+      ${escapeXml(cleanText)}
+    </prosody>
+  </voice>
+</speak>`;
+
+                const response = await fetch(EDGE_TTS_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/ssml+xml',
+                        'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3',
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                    },
+                    body: ssml,
+                });
+
+                if (!response.ok) throw new Error('TTS fetch failed');
+
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+
+                ttsAudio = new Audio(url);
+                ttsAudio.onended = () => {
+                    URL.revokeObjectURL(url);
+                    ttsAudio = null;
+                };
+                ttsAudio.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    ttsAudio = null;
+                };
+                ttsAudio.play();
+
+            } catch (err) {
+                console.warn('Edge TTS failed, falling back to browser TTS:', err.message);
+                // Fallback to browser speechSynthesis
+                fallbackSpeak(text);
+            }
+        }
+
+        function escapeXml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function fallbackSpeak(text) {
             if (!window.speechSynthesis) return;
-
-            // Cancel any ongoing speech
             window.speechSynthesis.cancel();
-
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'zh-CN';
-            utterance.rate = 1.0;
-            utterance.pitch = 1.2;
+            utterance.rate = 1.1;
+            utterance.pitch = 1.5;
             utterance.volume = 1;
-
-            // Try to use a female voice
             const voices = window.speechSynthesis.getVoices();
             const zhVoice = voices.find(v => v.lang.startsWith('zh') && v.name.includes('Female'))
                 || voices.find(v => v.lang.startsWith('zh-CN'))
                 || voices.find(v => v.lang.startsWith('zh'));
             if (zhVoice) utterance.voice = zhVoice;
-
             window.speechSynthesis.speak(utterance);
         }
 
-        // Preload voices
+        // Preload browser voices as fallback
         if (window.speechSynthesis) {
             window.speechSynthesis.getVoices();
             window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
